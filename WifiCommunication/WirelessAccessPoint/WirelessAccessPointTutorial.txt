@@ -1,0 +1,43 @@
+#Courtesy of http://www.daveconroy.com/turn-your-raspberry-pi-into-a-wifi-hotspot-with-edimax-nano-usb-ew-7811un-rtl8188cus-chipset/
+
+Tutorial:
+
+Install Raspbian
+	Flash SD Card
+	Connect over SSH
+		host: raspberrypi
+		Usernaem: pi
+		Password: raspberry
+	sudo raspi-config
+	update the following:
+		update
+		expand_rootfs
+		change_pass
+		change_timezone
+		memory_split
+	sudo shutdown -r now #reboot RPi
+Install HostAPD
+	sudo apt-get update
+	sudo apt-get install hostapd #install hostapd
+	#apt hosted copy of hostapd is not compatible with our chipset -> need to run the following commands
+	wget http://www.daveconroy.com/wp3/wp-content/uploads/2013/07/hostapd.zip
+	unzip hostapd.zip 
+	sudo mv /usr/sbin/hostapd /usr/sbin/hostapd.bak
+	sudo mv hostapd /usr/sbin/hostapd.edimax 
+	sudo ln -sf /usr/sbin/hostapd.edimax /usr/sbin/hostapd 
+	sudo chown root.root /usr/sbin/hostapd 
+	sudo chmod 755 /usr/sbin/hostapd
+Configure hostapd (hostapd.conf included in this folder)
+	sudo nano /etc/hostapd/hostapd.conf
+Define a subnet for wireless card (update with lines in interfaces included in this folder)
+	sudo nano /etc/network/interfaces
+Enable DHCP for any device 
+	sudo apt-get install isc-dhcp-server
+	sudo nano /etc/dhcp/dhcpd.conf
+Reboot
+	sudo reboot
+Once Pi is back up:
+	sudo hostapd -B /etc/hostapd/hostapd.conf # Start hostapd
+	sudo /etc/init.d/isc-dhcp-server restart #Reboot DHCP Server
+Optional: configure hostapd to boot on startup
+	sudo nano /etc/default/hostapd (the line contained in hostapd.txt in this folder should be uncommented)
