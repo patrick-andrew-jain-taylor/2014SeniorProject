@@ -1,0 +1,2 @@
+MAC Address Filtering: http://wiki.excito.org/wiki/index.php/MAC_address_filter_for_wireless_network
+Hidden SSID / WPA / WPA2: http://dev.laptop.org/pub/firmware/libertas/thinfirm/hostapd.conf.sample
