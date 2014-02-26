@@ -1,0 +1,1 @@
+GlassPi2: 80:1f:02:d3:76:ed -- Access Point Configured
