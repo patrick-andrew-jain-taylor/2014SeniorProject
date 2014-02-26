@@ -15,6 +15,10 @@ For first-time install, perform the following:
 3) Raspi-config
 --Change user password to "glasses"
 --Disable boot to desktop
+--Internationalization Options
+	--Locale: US UTF-8
+	--Timezone: Eastern
+	
 --Under advanced options
 	--Set hostname to GlassPi#
 	--Enable SSH
