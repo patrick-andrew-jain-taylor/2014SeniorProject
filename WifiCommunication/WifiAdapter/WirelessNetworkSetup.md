@@ -1,13 +1,17 @@
 Adapter: Edimax EW-7811UN 150Mbps
 
 Commands to run:
-$ lsusb //ensures adapter plugged into Pi -- looking for something like RTL8187B
-$ apt-get update //updates all directories
-$ apt-cache search RTL818
-$ sudo apt-get install firmware-realtek //updates firmware
-$ lsmod //ID should be listed
-$ sudo nano /etc/wpa.config
-	network={
-	ssid="YOUR_SSID"
-	proto=RSN
-	key
+$ sudo /etc/network/interfaces
+
+auto lo
+ 
+iface lo inet loopback
+iface eth0 inet dhcp
+ 
+allow-hotplug wlan0
+auto wlan0
+ 
+ 
+iface wlan0 inet dhcp
+        wpa-ssid "ssid" //"Test"
+        wpa-psk "password" //"Glasses1"
