@@ -1592,6 +1592,7 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="PROD_ID" value="IC-07875" x="49.0728" y="29.0322" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="IC8" library="74ac-logic" package="DIL16" value="74AC11008" x="12.1158" y="-7.112"/>
+<element name="IC9" library="74ac-logic" package="DIL16" value="74AC11008" x="12.1158" y="-18.8468"/>
 </elements>
 <signals>
 <signal name="3V3">
@@ -2919,12 +2920,20 @@ Please make sure your boards conform to these design rules.</description>
 <signal name="GND">
 <contactref element="IC8" pad="4"/>
 <contactref element="IC8" pad="5"/>
+<contactref element="IC9" pad="4"/>
+<contactref element="IC9" pad="5"/>
+<wire x1="13.3858" y1="-22.6568" x2="10.8458" y2="-22.6568" width="0" layer="19" extent="1-1"/>
+<wire x1="13.3858" y1="-10.922" x2="13.3858" y2="-22.6568" width="0" layer="19" extent="1-1"/>
 <wire x1="10.8458" y1="-10.922" x2="13.3858" y2="-10.922" width="0" layer="19" extent="1-1"/>
 </signal>
 <signal name="VCC">
 <contactref element="IC8" pad="12"/>
 <contactref element="IC8" pad="13"/>
+<contactref element="IC9" pad="12"/>
+<contactref element="IC9" pad="13"/>
 <wire x1="10.8458" y1="-3.302" x2="13.3858" y2="-3.302" width="0" layer="19" extent="1-1"/>
+<wire x1="10.8458" y1="-15.0368" x2="10.8458" y2="-3.302" width="0" layer="19" extent="1-1"/>
+<wire x1="13.3858" y1="-15.0368" x2="10.8458" y2="-15.0368" width="0" layer="19" extent="1-1"/>
 </signal>
 </signals>
 </board>
