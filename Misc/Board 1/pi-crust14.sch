@@ -8008,6 +8008,7 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <segment>
 <wire x1="337.82" y1="175.26" x2="335.28" y2="175.26" width="0.6096" layer="91"/>
 <pinref part="IC6" gate="A" pin="QB"/>
+<label x="337.82" y="175.26" size="1.778" layer="95"/>
 </segment>
 <segment>
 <wire x1="337.82" y1="142.24" x2="335.28" y2="142.24" width="0.6096" layer="91"/>
@@ -9425,10 +9426,12 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <segment>
 <pinref part="U1" gate="A" pin="PWRDN"/>
 <wire x1="7.62" y1="5.08" x2="5.08" y2="5.08" width="0.6096" layer="91"/>
+<label x="2.54" y="5.08" size="1.778" layer="95"/>
 </segment>
 <segment>
 <wire x1="2.54" y1="-5.08" x2="0" y2="-5.08" width="0.6096" layer="91"/>
 <pinref part="PWRDWN_RES" gate="G$1" pin="1"/>
+<label x="-2.54" y="-5.08" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="U1" class="0">

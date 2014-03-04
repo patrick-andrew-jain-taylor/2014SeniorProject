@@ -4040,6 +4040,7 @@ Based on the following source:
 <part name="IC2" library="SparkFun-DigitalIC" deviceset="74*595" device="D" technology="LS"/>
 <part name="IC7" library="SparkFun-DigitalIC" deviceset="74*595" device="D" technology="LS"/>
 <part name="IC8" library="74ac-logic" deviceset="74AC11008" device=""/>
+<part name="IC9" library="74ac-logic" deviceset="74AC11008" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -4090,10 +4091,14 @@ Based on the following source:
 <instance part="IC6" gate="A" x="320.04" y="170.18"/>
 <instance part="IC2" gate="A" x="320.04" y="99.06"/>
 <instance part="IC7" gate="A" x="320.04" y="137.16"/>
-<instance part="IC8" gate="A" x="215.9" y="134.62"/>
-<instance part="IC8" gate="B" x="236.22" y="134.62"/>
-<instance part="IC8" gate="C" x="215.9" y="121.92"/>
-<instance part="IC8" gate="D" x="236.22" y="121.92"/>
+<instance part="IC8" gate="A" x="370.84" y="172.72"/>
+<instance part="IC8" gate="B" x="370.84" y="160.02"/>
+<instance part="IC8" gate="C" x="370.84" y="147.32"/>
+<instance part="IC8" gate="D" x="370.84" y="134.62"/>
+<instance part="IC9" gate="A" x="370.84" y="121.92"/>
+<instance part="IC9" gate="B" x="370.84" y="109.22"/>
+<instance part="IC9" gate="C" x="370.84" y="93.98"/>
+<instance part="IC9" gate="D" x="370.84" y="81.28"/>
 </instances>
 <busses>
 </busses>

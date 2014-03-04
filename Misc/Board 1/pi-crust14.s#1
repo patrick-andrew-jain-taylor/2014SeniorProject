@@ -7823,6 +7823,9 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <part name="JP1" library="pinhead" deviceset="PINHD-1X5" device=""/>
 <part name="JP2" library="pinhead" deviceset="PINHD-1X5" device=""/>
 <part name="C7" library="capacitor-wima" deviceset="C" device="2.5/5" value="10u"/>
+<part name="CZ" library="capacitor-wima" deviceset="C" device="2.5/5" value="82nF"/>
+<part name="CP" library="capacitor-wima" deviceset="C" device="2.5/5" value="8.2nF"/>
+<part name="RZ" library="eagle-ltspice" deviceset="R" device="0204/7" value="1.5k"/>
 </parts>
 <sheets>
 <sheet>
@@ -7887,6 +7890,9 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <instance part="JP1" gate="A" x="142.24" y="53.34"/>
 <instance part="JP2" gate="A" x="142.24" y="35.56"/>
 <instance part="C7" gate="G$1" x="2.54" y="22.86"/>
+<instance part="CZ" gate="G$1" x="111.76" y="-5.08"/>
+<instance part="CP" gate="G$1" x="99.06" y="-5.08"/>
+<instance part="RZ" gate="G$1" x="111.76" y="-20.32" rot="R90"/>
 </instances>
 <busses>
 </busses>
@@ -8911,6 +8917,16 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <label x="241.3" y="142.24" size="1.778" layer="95"/>
 <pinref part=".1UF" gate="G$1" pin="1"/>
 </segment>
+<segment>
+<wire x1="96.52" y1="-2.54" x2="99.06" y2="-2.54" width="0.6096" layer="91"/>
+<label x="91.44" y="-2.54" size="1.778" layer="95"/>
+<pinref part="CP" gate="G$1" pin="1"/>
+</segment>
+<segment>
+<wire x1="109.22" y1="-2.54" x2="111.76" y2="-2.54" width="0.6096" layer="91"/>
+<label x="104.14" y="-2.54" size="1.778" layer="95"/>
+<pinref part="CZ" gate="G$1" pin="1"/>
+</segment>
 </net>
 <net name="FLOATING" class="0">
 <segment>
@@ -9583,8 +9599,21 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <label x="101.6" y="10.16" size="1.778" layer="95"/>
 </segment>
 <segment>
-<wire x1="93.98" y1="-5.08" x2="96.52" y2="-5.08" width="0.3048" layer="91"/>
-<label x="88.9" y="-5.08" size="1.778" layer="95"/>
+<wire x1="96.52" y1="-10.16" x2="99.06" y2="-10.16" width="0.3048" layer="91"/>
+<label x="91.44" y="-10.16" size="1.778" layer="95"/>
+<pinref part="CP" gate="G$1" pin="2"/>
+</segment>
+<segment>
+<wire x1="109.22" y1="-25.4" x2="111.76" y2="-25.4" width="0.3048" layer="91"/>
+<label x="104.14" y="-25.4" size="1.778" layer="95"/>
+<pinref part="RZ" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="N$1" class="0">
+<segment>
+<pinref part="RZ" gate="G$1" pin="2"/>
+<pinref part="CZ" gate="G$1" pin="2"/>
+<wire x1="111.76" y1="-15.24" x2="111.76" y2="-10.16" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
