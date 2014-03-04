@@ -1,1 +1,0 @@
-This folder will contain all files pertaining to I2C configurations.

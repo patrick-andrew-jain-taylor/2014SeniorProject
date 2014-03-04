@@ -6,14 +6,14 @@
  * */
 void GPIOMux{
 	//set pin modes
-	pinModeWPi(7, OUTPUT); //GPIO 4  -- Output O1
-	pinModeWPi(0, OUTPUT); //GPIO 17 -- Output O2
-	pinModeWPi(1, OUTPUT); //GPIO 18 -- Output O3
-	pinModeWPi(2, OUTPUT); //GPIO 21 -- Output O4
-	pinModeWPi(3, OUTPUT); //GPIO 22 -- Output O5
-	pinModeWPi(4, OUTPUT); //GPIO 23 -- Output O6
-	pinModeWPi(5, INPUT);  //GPIO 24 -- Input  S1
-	pinModeWPi(6, INPUT);  //GPIO 25 -- Input  S0
+	pinModeWPi(7, INPUT); //GPIO 4  -- Output O1
+	pinModeWPi(0, INPUT); //GPIO 17 -- Output O2
+	pinModeWPi(1, INPUT); //GPIO 18 -- Output O3
+	pinModeWPi(2, INPUT); //GPIO 21 -- Output O4
+	pinModeWPi(3, INPUT); //GPIO 22 -- Output O5
+	pinModeWPi(4, INPUT); //GPIO 23 -- Output O6
+	pinModeWPi(5, OUTPUT);  //GPIO 24 -- Input  S1
+	pinModeWPi(6, OUTPUT);  //GPIO 25 -- Input  S0
 	//cycle through indefinitely -- this will change
 	while(1){
 		// "00"
