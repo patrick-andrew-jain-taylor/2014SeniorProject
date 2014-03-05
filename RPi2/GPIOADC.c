@@ -24,7 +24,7 @@ void GPIOADC{
 	while(1){//loop indefinitely -- not final implementation
 		//Check valid data first
 		if (hcount < 640){ //0-639 valid data
-			if (vcount < 480){ //0-479 valid data
+			if ((vcount < 480) && ((hcount % 4) == 0)){ //0-479 valid data, hcount has a factor of 4
 				//tell RPI1 to inc mux
 			}
 		}
