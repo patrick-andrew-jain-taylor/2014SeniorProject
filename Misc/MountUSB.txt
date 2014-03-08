@@ -18,7 +18,10 @@ If successful, mount flash should automatically mount USB on USB connection
 
 Short version: 
 mkdir flash
-mount -t vfat -o uid=pi,gid=users /dev/sda1 ./flash
+sudo mount -t vfat -o uid=pi,gid=users /dev/sda1 ./flash
 sudo cp /etc/fstab /etc/fstab.bak
 sudo nano /etc/fstab 
 	/dev/sda1 /home/pi/flash vfat users,noauto,uid=pi,gid=users 0 0
+	/dev/sdb1 /home/pi/flash vfat users,noauto,uid=pi,gid=users 0 0
+sudo umount flash
+	
