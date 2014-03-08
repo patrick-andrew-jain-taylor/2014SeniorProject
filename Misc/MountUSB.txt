@@ -1,0 +1,24 @@
+Mounting USB Flash Drive
+1) Plug in flash drive
+2) lsusb -- is Flash Drive recognized?
+3) Disconnect flash drive
+4) sudo dmesg -C -- clear debug log
+5) dmesg -- check for error
+6) lsusb -t -- does flash drive show up in tree?
+7) mkdir DIRNAME -- make directory in desired folder
+8) mount -t vfat -o uid=pi,gid=users /dev/sda1 ./DIRNAME -- mount drive to folder
+
+If successful, do the following
+
+9) sudo cp /etc/fstab /etc/fstab.bak -- make backup of current version of /etc/fstab
+10) sudo nano /etc/fstab
+/dev/sda1 /home/pi/DIRNAME vfat users,noauto,uid=pi,gid=users 0 0
+
+If successful, mount flash should automatically mount USB on USB connection
+
+Short version: 
+mkdir flash
+mount -t vfat -o uid=pi,gid=users /dev/sda1 ./flash
+sudo cp /etc/fstab /etc/fstab.bak
+sudo nano /etc/fstab 
+	/dev/sda1 /home/pi/flash vfat users,noauto,uid=pi,gid=users 0 0
