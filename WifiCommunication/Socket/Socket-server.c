@@ -25,7 +25,7 @@ int main(void)
       
   serv_addr.sin_family = AF_INET;    
   serv_addr.sin_addr.s_addr = htonl(INADDR_ANY); 
-  serv_addr.sin_port = htons(5000);    
+  serv_addr.sin_port = htons(17350);    
  
   bind(listenfd, (struct sockaddr*)&serv_addr,sizeof(serv_addr));
   
@@ -40,7 +40,7 @@ int main(void)
       
       connfd = accept(listenfd, (struct sockaddr*)NULL ,NULL); // accept awaiting request
   
-      strcpy(sendBuff, "Message from server");
+      strcpy(sendBuff, "Message from servers");
       write(connfd, sendBuff, strlen(sendBuff));
  
       close(connfd);    
