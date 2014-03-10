@@ -108,11 +108,17 @@ int RPi2Setup(void)
 	//set clocks
 	digitalWrite(7, HIGH);
 	digitalWrite(1, HIGH);
+	//initalize serial
+	wiringPiI2CSetup(0x4C); //unsure what device ID is for now, will test
+	//set PLL to 800
+	wiringPiI2CWriteReg16(0x4C, 0x01,0x2800); //PLL to 640
+	wiringPiI2CWriteReg8(0x4C, 0x03, 0x28) //VCO/CPMP
 	return 0;
 }
 
 int main(void)
 {
+	RPi2Setup();
 	pthread_t server;
 	pthread_t client;
 	pthread_create(&client, NULL, socketClient, NULL);
