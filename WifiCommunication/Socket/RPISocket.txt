@@ -1,0 +1,35 @@
+RPi2 -> RPi1: 16-bit word (2 bytes)
+14 MSBs: position
+2 LSBs: MUX value
+160×120 = 19200 = 2^14 + 2^11 + 2^9 + 2^8
+1001 0110 0000 00XX
+MAX BINARY VALUE PASSED:
+1001 0110 0000 0000
+PASS 0-19199 << 2  to RPI1
+
+RPi1 -> RPi3: 
+Solution 1) 16-bit word (2 bytes) 
+All bits: Display Data
+Solution 2) 32-bit word (4 bytes)
+14 MSBs: Position (shift 2 bits to eliminate MUX value)
+16 LSBs: Display Data
+Will likely use solution 1 to save on time and keep track of position on RPi3
+
+
+
+RPi3 -> RPi2: 16-bit word (2 bytes)
+8 MSBs: Address
+8 LSBs: Value
+This will depend on the function from the Push Buttons (currently 5)
+
+Do timing analysis on one full cycle (all pixels)
+-once GPIO on RPI1 configured, connect all high
+-print timestamp on RPi2 at 0
+-RPi2 increment and send to RPi1
+-RPi1 perform read functions and send to RPI3
+-RPi3 increment position counter and print timestamp at 19199
+
+Do for full second - note results
+
+
+    
