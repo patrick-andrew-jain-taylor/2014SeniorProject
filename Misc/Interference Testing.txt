@@ -1,0 +1,54 @@
+Interference Testing (Ping test data contained in pingtext.xls)
+
+On RPi3, the Wifi Access Point, we used default settings for configuration. This included the following:
+	Channel 1
+	WMM disabled
+	WPA net (Test/Glasses1)
+	Auth Algs = 1, MACAddr_ACL = 0 (
+	IEEE 802.11b
+	
+With our configuration, we are looking for a sweet spot of reliability, low latency, and high bandwidth for 
+video transmission. Reading through hostapd.conf.sample, we can reconfigure the access point with certain
+parameters to accomplish our goal.
+
+1) Unchanged settings
+
+	interface=wlan0 #Wireless interface
+	#bridge=br0 # No bridge necessary -- no connection to ethernet
+	driver=rtl871xdrv #EDIMAX driver
+	ssid=Test #Test network
+	auth_algs=1 #Only Shared Key, no Open net
+	
+2) Changed settings
+
+	macaddr_acl=1
+	
+	
+		By default, this is set to 0. This denotes accept unless in deny list. We are looking to 
+		implement MAC filtering, so we set macaddr_acl = 1 and uncomment accept_mac_file=/etc/hostapd.accept
+		but make sure to add the MAC addresses of all 3 Pis, as well as any devices used for testing
+	
+	ignore_broadcast_ssid=1
+	
+		By default, this is set to 0. We are looking to avoid broadcasting this SSID, so this must be set 
+		to 1 to send an empty SSID in beacon and ignore probe request for broadcast SSID. However, during
+		testing, this will be commented out, since we want to make sure the AP is working.
+		
+	hw_mode=g
+	
+		By default, this is set to b. We want to use 802.11g (802.11b does not support WMM)
+		
+	wmm_enabled=1
+	
+		By default, this is set to 0. We are looking to improve network speed on the whole, so enabling wmm
+		will allow our speeds to dramatically increase (reasons TBD)
+		
+	iee80211n=1
+	ht_capab=[HT40+][SHORT-GI-40][DSSS_CCK-40][SHORT-GI-20][MAX-AMSDU-7935]
+	
+		By default, this is set to 0. The N-band will be required for speedier transmission. The ht_capab
+		settings are necessary for N-band with our Edimax adapter. [NOTE: Turns out they aren't necessary,
+		but are likely used to optimize network speed. Will use if running into delay issues].
+		
+		
+3) Completed config:

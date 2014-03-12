@@ -1,0 +1,7 @@
+#Listed of allowed MACs
+cc:fa:00:a8:2b:fe #Android Nexus 7
+80:1f:02:d3:77:18 #RPi1
+80:1f:02:d3:7a:f8 #RPi2
+80:1f:02:d3:76:ed #RPi3
+f8:1a:67:25:55:d6 #Desktop
+
