@@ -8,10 +8,8 @@
 #include <string.h>
 #include <sys/types.h>
 #include <pthread.h>
-#include "wiringPi.h"
-#include "wiringPISPI.h"
-
-}
+#include "WiringPi/wiringPi/wiringPi.h"
+#include "WiringPi/wiringPi/wiringPiSPI.h"
 
 //wiringPi pins
 const int CE0 = 10;
@@ -22,88 +20,21 @@ const int CE0 = 10;
 const int RS = 7;
 const int RESETB = 0;
 
-int socketServer(void) //receive from RPi1
-{
-  int listenfd = 0,connfd = 0;
-  
-  struct sockaddr_in serv_addr;
- 
-  char recvBuff[3];  
-
-  listenfd = socket(AF_INET, SOCK_STREAM, 0);
-  printf("socket retrieve success\n");
-  
-  memset(&serv_addr, '0', sizeof(serv_addr));
-  memset(recvBuff, '0', sizeof(recvBuff));
-      
-  serv_addr.sin_family = AF_INET;    
-  serv_addr.sin_addr.s_addr = htonl(INADDR_ANY); 
-  serv_addr.sin_port = htons(17350);    
- 
-  bind(listenfd, (struct sockaddr*)&serv_addr,sizeof(serv_addr));
-  
-  if(listen(listenfd, 10) == -1){
-      printf("Failed to listen\n");
-      return -1;
-  }
-  connfd = accept(listenfd, (struct sockaddr*)NULL ,NULL); // accept awaiting request
-
-  //interpret data from RPi1
-  while(1)
-  {
-	  int n = 0;
-	  if((n = read(listenfd, recvBuff, sizeof(recvBuff)-1)) > 0)
-	  {
-		  int tmp = atoi(recvBuff);
-		  seps525_datastart();
-		  seps525_data(tmp);
-		  seps525_dataend();
-	  }
-  }
-  return 0;
-}
-
-int socketClient(void) //send to RPi2
-{
-  int sockfd = 0,n = 0;
-  char sendBuff[2];
-  struct sockaddr_in serv_addr;
- 
-  memset(sendBuff, '0' ,sizeof(sendBuff));
-  if((sockfd = socket(AF_INET, SOCK_STREAM, 0))< 0)
-    {
-      printf("\n Error : Could not create socket \n");
-      return 1;
-    }
- 
-  serv_addr.sin_family = AF_INET;
-  serv_addr.sin_port = htons(17350);
-  serv_addr.sin_addr.s_addr = inet_addr("192.168.0.102");
- 
-  if(connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr))<0)
-    {
-      printf("\n Error : Connect Failed \n");
-      return 1;
-    }
- 
-
-  //send screen adjustment information to RPi2
-  
-  return 0;
-
 int seps525_reg(int address, int data)
 {
 	char buffer[8];
 	//write address
 	digitalWrite(CE0, LOW);
 	digitalWrite(RS, LOW);
-	wiringPiSPIDataRW(0, itoa(address, buffer, 8), 8);
+	snprintf(buffer, sizeof(buffer), "%d", address);
+	wiringPiSPIDataRW(0, (unsigned char *)buffer, 8);
 	digitalWrite(RS, HIGH);
-	digitalWrite(CS, HIGH);
+	digitalWrite(CE0, HIGH);
 	//write data
-	digitalWrite(CS, LOW);
-	wiringPiSPIDataRW(0, itoa(data, buffer, 8), 8);
-	digitalWrite(CS, HIGH);
+	digitalWrite(CE0, LOW);
+	snprintf(buffer, sizeof(buffer), "%d", data);
+	wiringPiSPIDataRW(0, (unsigned char *)buffer, 8);
+	digitalWrite(CE0, HIGH);
 	return 0;
 }
 
@@ -112,7 +43,8 @@ int seps525_datastart(void)
 	char buffer[8];
 	digitalWrite(CE0, LOW);
 	digitalWrite(RS, LOW);
-	wiringPiSPIDataRW(0, itoa(0x22, buffer, 8), 8);
+	snprintf(buffer, sizeof(buffer), "%d", 0x22);
+	wiringPiSPIDataRW(0, (unsigned char *)buffer, 8);
 	digitalWrite(RS, HIGH);
 	return 0;
 }
@@ -120,7 +52,8 @@ int seps525_datastart(void)
 int seps525_data(int data)
 {
 	char buffer[16];
-	wiringPiSPIDataRW(0, itoa(data, buffer, 16), 16);
+	snprintf(buffer, sizeof(buffer), "%d", data);
+	wiringPiSPIDataRW(0,(unsigned char *)buffer, 16);
 	return 0;
 	
 }
@@ -136,8 +69,8 @@ int seps525_setup(void)
 	wiringPiSetup();
 	wiringPiSPISetup(0, 16670000); //initialize SPI channel 0 at 16.67 MHz
 	//set RS and CE
-	pinModeWPi(RS, OUTPUT);
-	pinModeWPi(CE0, OUTPUT);
+	pinMode(RS, OUTPUT);
+	pinMode(CE0, OUTPUT);
 	return 0;
 }
 
@@ -197,6 +130,77 @@ int seps525_init(void)
 	return 0;
 }
 
+int socketServer(void) //receive from RPi1
+{
+  int listenfd = 0/*,connfd = 0*/;
+  
+  struct sockaddr_in serv_addr;
+ 
+  char recvBuff[3];  
+
+  listenfd = socket(AF_INET, SOCK_STREAM, 0);
+  printf("socket retrieve success\n");
+  
+  memset(&serv_addr, '0', sizeof(serv_addr));
+  memset(recvBuff, '0', sizeof(recvBuff));
+      
+  serv_addr.sin_family = AF_INET;    
+  serv_addr.sin_addr.s_addr = htonl(INADDR_ANY); 
+  serv_addr.sin_port = htons(17350);    
+ 
+  bind(listenfd, (struct sockaddr*)&serv_addr,sizeof(serv_addr));
+  
+  if(listen(listenfd, 10) == -1){
+      printf("Failed to listen\n");
+      return -1;
+  }
+  /*connfd = */accept(listenfd, (struct sockaddr*)NULL ,NULL); // accept awaiting request
+
+  //interpret data from RPi1
+  while(1)
+  {
+	  int n = 0;
+	  if((n = read(listenfd, recvBuff, sizeof(recvBuff)-1)) > 0)
+	  {
+		  int tmp = atoi(recvBuff);
+		  seps525_datastart();
+		  seps525_data(tmp);
+		  seps525_dataend();
+	  }
+  }
+  return 0;
+}
+
+int socketClient(void) //send to RPi2
+{
+  int sockfd = 0/*,n = 0*/;
+  char sendBuff[2];
+  struct sockaddr_in serv_addr;
+ 
+  memset(sendBuff, '0' ,sizeof(sendBuff));
+  if((sockfd = socket(AF_INET, SOCK_STREAM, 0))< 0)
+    {
+      printf("\n Error : Could not create socket \n");
+      return 1;
+    }
+ 
+  serv_addr.sin_family = AF_INET;
+  serv_addr.sin_port = htons(17350);
+  serv_addr.sin_addr.s_addr = inet_addr("192.168.0.102");
+ 
+  if(connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr))<0)
+    {
+      printf("\n Error : Connect Failed \n");
+      return 1;
+    }
+ 
+
+  //send screen adjustment information to RPi2
+  
+  return 0;
+}
+
+
 int RPi3Setup(void) //need to work with Jake to finalize
 {
 	wiringPiSetup();
@@ -213,15 +217,12 @@ int RPi3Setup(void) //need to work with Jake to finalize
 	return 0;
 }
 
-int
-
-
 int main(void)
 {
 	seps525_init();
-	pthread_t server;
-	pthread_t client;
-	pthread_create(&client, NULL, socketClient, NULL);
-	pthread_create(&server, NULL, socketServer, NULL);
+	//pthread_t server;
+	//pthread_t client;
+	//pthread_create(&client, NULL, socketClient, NULL);
+	//pthread_create(&server, NULL, socketServer, NULL);
 	return 0;
 }

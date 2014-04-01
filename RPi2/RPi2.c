@@ -8,15 +8,41 @@
 #include <string.h>
 #include <sys/types.h>
 #include <pthread.h>
+#include <linux/i2c-dev.h>
+#include "WiringPi/wiringPi/wiringPi.h"
+#include "WiringPi/wiringPi/wiringPiI2C.h"
+ 
+int RPi2Setup(void)
+{
+	wiringPiSetup();
+	//set modes
+	pinMode(7, OUTPUT);	// GPIO 4  -- HSYNC0
+	pinMode(0, INPUT);	// GPIO 17 -- HSOUT
+	pinMode(1, OUTPUT);	// GPIO 18 -- VSYNC0
+	pinMode(2, INPUT);	// GPIO 21 -- VSOUT
+	pinMode(3, OUTPUT);	// GPIO 22 -- A0
+	pinMode(4, INPUT);	// GPIO 23 -- EXTCLK
+	pinMode(5, OUTPUT);	// GPIO 24 -- CLAMP
+	pinMode(6, OUTPUT);	// GPIO 25 -- COAST
+	//set clocks
+	digitalWrite(7, HIGH);
+	digitalWrite(1, HIGH);
+	//initalize serial
+	/*wiringPiI2CSetup(0x4C); //unsure what device ID is for now, will test
+	//set PLL to 800
+	wiringPiI2CWriteReg16(0x4C, 0x01,0x2800); //PLL to 640
+	wiringPiI2CWriteReg8(0x4C, 0x03, 0x28); //VCO/CPMP*/
+	return 0;
+}
  
 int socketServer(void)
 {
-  int listenfd = 0,connfd = 0;
+  int listenfd = 0;//,connfd = 0;
   
   struct sockaddr_in serv_addr;
  
   char recvBuff[2];  
-  int numrv;  
+  //int numrv;  
  
   listenfd = socket(AF_INET, SOCK_STREAM, 0);
   printf("socket retrieve success\n");
@@ -35,15 +61,15 @@ int socketServer(void)
       return -1;
   }
   
-  connfd = accept(listenfd, (struct sockaddr*)NULL ,NULL); // accept awaiting request
+  /*connfd = */accept(listenfd, (struct sockaddr*)NULL ,NULL); // accept awaiting request
 
   return 0;
 }
 
 int socketClient(void)
 {
-  int sockfd = 0,n = 0;
-  char sendBuff[2];
+  int sockfd = 0;//,n = 0;
+  char sendBuff[3];
   struct sockaddr_in serv_addr;
  
   memset(sendBuff, '0' ,sizeof(sendBuff));
@@ -69,12 +95,12 @@ int socketClient(void)
 	while(1){//loop indefinitely
 		//Check valid data first
 		if (hcount < 640){ //0-639 valid data
-			if ((vcount < 480) && ((hcount % 4) == 0)){ //0-479 valid data, hcount has a factor of 4
-				//tell RPI1 to inc mux
-				sendBuff = (char*)(hcount << 2); //cast to char*
-				write(sockfd, sendBuff, strlen(sendBuff));
+			if ((vcount < 480)){ //0-479 valid data, hcount has a factor of 4
+				//tell RPI1 data is valid
+				write(sockfd, 0x00, strlen(sendBuff));
 			}
 		}
+		write(sockfd, 0xFF, strlen(sendBuff));
 		//HSYNC first
 		//@660 -> HSYNC set low
 		if (hcount == 660) digitalWrite(7, LOW);
@@ -93,35 +119,12 @@ int socketClient(void)
   return 0;
 }
 
-int RPi2Setup(void)
-{
-	wiringPiSetup();
-	//set modes
-	pinMode(7, OUTPUT);	// GPIO 4  -- HSYNC0
-	pinMode(0, INPUT);	// GPIO 17 -- HSOUT
-	pinMode(1, OUTPUT);	// GPIO 18 -- VSYNC0
-	pinMode(2, INPUT);	// GPIO 21 -- VSOUT
-	pinMode(3, OUTPUT);	// GPIO 22 -- A0
-	pinMode(4, INPUT);	// GPIO 23 -- EXTCLK
-	pinMode(5, OUTPUT);	// GPIO 24 -- CLAMP
-	pinMode(6, OUTPUT);	// GPIO 25 -- COAST
-	//set clocks
-	digitalWrite(7, HIGH);
-	digitalWrite(1, HIGH);
-	//initalize serial
-	wiringPiI2CSetup(0x4C); //unsure what device ID is for now, will test
-	//set PLL to 800
-	wiringPiI2CWriteReg16(0x4C, 0x01,0x2800); //PLL to 640
-	wiringPiI2CWriteReg8(0x4C, 0x03, 0x28) //VCO/CPMP
-	return 0;
-}
-
 int main(void)
 {
 	RPi2Setup();
-	pthread_t server;
-	pthread_t client;
-	pthread_create(&client, NULL, socketClient, NULL);
-	pthread_create(&server, NULL, socketServer, NULL);
+	//pthread_t server;
+	//pthread_t client;
+	//pthread_create(&client, NULL, socketClient, NULL);
+	//pthread_create(&server, NULL, socketServer, NULL);
 	return 0;
 }
