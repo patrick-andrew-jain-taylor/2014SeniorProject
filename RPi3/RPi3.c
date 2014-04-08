@@ -11,6 +11,9 @@
 #include "WiringPi/wiringPi/wiringPi.h"
 #include "WiringPi/wiringPi/wiringPiSPI.h"
 
+pthread_t client; //thread for client
+pthread_t server; //thread for server
+
 //wiringPi pins
 const int CE0 = 10;
 // const int CE1 = 11;
@@ -130,13 +133,13 @@ int seps525_init(void)
 	return 0;
 }
 
-int socketServer(void) //receive from RPi1
+void *socketServer(void *ptr) //receive from RPi1
 {
-  int listenfd = 0/*,connfd = 0*/;
+  int listenfd = 0/*, connfd = 0*/;
   
   struct sockaddr_in serv_addr;
  
-  char recvBuff[3];  
+  char recvBuff[38401];  
 
   listenfd = socket(AF_INET, SOCK_STREAM, 0);
   printf("socket retrieve success\n");
@@ -152,9 +155,8 @@ int socketServer(void) //receive from RPi1
   
   if(listen(listenfd, 10) == -1){
       printf("Failed to listen\n");
-      return -1;
   }
-  /*connfd = */accept(listenfd, (struct sockaddr*)NULL ,NULL); // accept awaiting request
+  /*connfd =*/ accept(listenfd, (struct sockaddr*)NULL ,NULL); // accept awaiting request
 
   //interpret data from RPi1
   while(1)
@@ -162,13 +164,19 @@ int socketServer(void) //receive from RPi1
 	  int n = 0;
 	  if((n = read(listenfd, recvBuff, sizeof(recvBuff)-1)) > 0)
 	  {
-		  int tmp = atoi(recvBuff);
-		  seps525_datastart();
-		  seps525_data(tmp);
-		  seps525_dataend();
+		int i = 0; int j = 0;
+		for(i = 0; i < 160; i++){
+			for(j = 0; j < 120; j++){
+				char temp1[2]; temp1[0] = recvBuff[i*j];
+				char temp2[2]; temp2[0] = recvBuff[i*j+1];
+				seps525_datastart();
+				seps525_data(atoi(temp1));
+				seps525_data(atoi(temp2));
+				seps525_dataend();
+			}
+		}
 	  }
   }
-  return 0;
 }
 
 int socketClient(void) //send to RPi2
@@ -220,9 +228,8 @@ int RPi3Setup(void) //need to work with Jake to finalize
 int main(void)
 {
 	seps525_init();
-	//pthread_t server;
-	//pthread_t client;
 	//pthread_create(&client, NULL, socketClient, NULL);
-	//pthread_create(&server, NULL, socketServer, NULL);
+	pthread_create(&server, NULL, socketServer, NULL);
+	pthread_join(server, NULL);
 	return 0;
 }

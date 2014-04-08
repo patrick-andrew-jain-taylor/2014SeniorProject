@@ -115,17 +115,16 @@ int socketServer(void)
   }
 }
 
-int socketClient(void)
+void *socketClient(void *ptr)
 {
   int sockfd = 0;//,n = 0;
-  char sendBuff[3]; //to contain display data
+  char sendBuff[38401]; //160*120*2+1
   struct sockaddr_in serv_addr;
  
   memset(sendBuff, '0' ,sizeof(sendBuff));
   if((sockfd = socket(AF_INET, SOCK_STREAM, 0))< 0) //establish socket
     {
       printf("\n Error : Could not create socket \n");
-      return 1;
     }
  
   serv_addr.sin_family = AF_INET;
@@ -135,29 +134,33 @@ int socketClient(void)
   if(connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr))<0) //connect to socket
     {
       printf("\n Error : Connect Failed \n");
-      return 1;
     }  
-  while(1){
-	  uint8_t RGB[24];
-	  uint16_t value = displayData((uint8_t *)GPIOMux(RGB));
-	  sendBuff[0] = value & 0xFF;
-	  sendBuff[1] = value >> 8;
-	  write(sockfd, sendBuff, strlen(sendBuff)); //write to RPi3
-	  pthread_join(server, NULL); //read from RPi2
-}
+	while(1)
+	{
+		uint8_t RGB[24];
+		uint16_t socket[160][120];
+		int i = 0; int j = 0;
+		for(i = 0; i < 160; i++){
+			for(j = 0; j < 120; j++){
+				socket[i][j] = displayData((uint8_t *)GPIOMux(RGB));
+	//			printf("%x", socket[i][j]);
+				sendBuff[i*j] = socket[i][j] & 0xFF;
+				sendBuff[i*j+1] = socket[i][j] >> 8;
+			}
+		}
+		write(sockfd, sendBuff, strlen(sendBuff)); //write to RPi3
+		//pthread_join(server, NULL); //read from RPi2
+		
+	}
+	
 }
 
 
 int main(void)
 {
 	RPi1Setup(); //set up RPi1 with wiringPi and correct pin modes
-	//pthread_create(&client, NULL, socketClient, NULL); //create thread for client using function socketClient
+	pthread_create(&client, NULL, socketClient, NULL); //create thread for client using function socketClient
 	//pthread_create(&server, NULL, socketServer, NULL); //create thread for server using function socketServer
-	//pthread_join(&server, NULL);
-	while(1)
-	{
-		uint8_t RGB[24];
-		printf("%d\n", displayData((uint8_t *)GPIOMux(RGB)));
-	}
+	pthread_join(client, NULL);
 	return 0;
 }
