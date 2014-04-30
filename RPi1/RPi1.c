@@ -15,6 +15,7 @@
 pthread_t client; //thread for client
 pthread_t server; //thread for server
 uint16_t frameBuf[441600]; //160*120*23
+const char * fileIn;
 
 
 /* This code provides basic functionality to and from the MUX on board 1 from 
@@ -89,6 +90,7 @@ struct counts {
 	int fields;
 	int rows;
 	int frameCount;
+	int sockfd;
 	uint16_t frame[160][120];
 };
 
@@ -103,10 +105,54 @@ void cb1 (void *s, size_t len, void *data) {
 void cb2 (int c, void *data) {
 	printf("\n");
 	((struct counts *)data)->rows++;
-	if (((struct counts *)data)->rows%120 == 0) printf("Frame %d\n", ((struct counts *)data)->frameCount++); 
+	if (((struct counts *)data)->rows%120 == 0)
+		frameWrite(int sockfd)
+		//printf("Frame %d\n", ((struct counts *)data)->frameCount++); 
 	}
 	
-
+int frameWrite(int sockfd){
+	char sendBuff[38401]; //160*120*2+1
+	uint16_t socket[160][120]; 
+	int i = 0; int j = 0;
+	for(i = 0; i < 160; i++){
+		for(j = 0; j < 120; j++){
+			socket[i][j] = ((struct counts *)data)->frame[i][j];
+	//		printf("%x", socket[i][j]);
+			sendBuff[i*j] = socket[i][j] & 0xFF;
+			sendBuff[i*j+1] = socket[i][j] >> 8;
+		}
+	}
+	write(sockfd, sendBuff, strlen(sendBuff)); //write to RPi3
+	return 0;
+}
+	
+int csvRead(int sockfd){
+	FILE *fp;
+	struct csv_parser p;
+	char buf[1024];
+	size_t bytes_read;
+	uint16_t frame[160][120];
+	struct counts c = {0, 0, 0, sockfd};
+	
+	if (csv_init(&p, 0) != 0) exit(EXIT_FAILURE);
+	fp = fopen(fileIn, "rb");
+	if (!fp) exit(EXIT_FAILURE);
+		
+	while ((bytes_read=fread(buf, 1, 1024, fp)) > 0)
+		if (csv_parse(&p, buf, bytes_read, cb1, cb2, &c) != bytes_read) {
+			fprintf(stderr, "Error while parsing file: %s\n",
+			csv_strerror(csv_error(&p)) );
+			exit(EXIT_FAILURE);
+		}
+		
+	csv_fini(&p, cb1, cb2, &c);
+	
+	fclose(fp);
+	printf("%d fields, %d rows\n", c.fields, c.rows);
+	
+	csv_free(&p);
+	return 0;
+}
 
 //Networking Code
 
@@ -148,7 +194,7 @@ int socketServer(void)
 void *socketClient(void *ptr)
 {
   int sockfd = 0;//,n = 0;
-  char sendBuff[38401]; //160*120*2+1
+  
   struct sockaddr_in serv_addr;
  
   memset(sendBuff, '0' ,sizeof(sendBuff));
@@ -159,7 +205,7 @@ void *socketClient(void *ptr)
  
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_port = htons(17350);
-  serv_addr.sin_addr.s_addr = inet_addr("192.168.0.1");
+  serv_addr.sin_addr.s_addr = inet_addr("192.168.0.102");
  
   if(connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr))<0) //connect to socket
     {
@@ -183,18 +229,7 @@ void *socketClient(void *ptr)
 	
 	while(1)
 	{
-		uint16_t socket[160][120] 
-		int i = 0; int j = 0;
-		for(i = 0; i < 160; i++){
-			for(j = 0; j < 120; j++){
-				socket[i][j] = ((struct counts *)data)->frame[i][j];
-	//			printf("%x", socket[i][j]);
-				sendBuff[i*j] = socket[i][j] & 0xFF;
-				sendBuff[i*j+1] = socket[i][j] >> 8;
-			}
-		}
-	
-		write(sockfd, sendBuff, strlen(sendBuff)); //write to RPi3
+		csvread(sockfd);
 		//pthread_join(server, NULL); //read from RPi2
 		
 	}
@@ -205,7 +240,7 @@ void *socketClient(void *ptr)
 int main(int argc, char *argv[])
 {
 	RPi1Setup(); //set up RPi1 with wiringPi and correct pin modes
-	
+	fileIn = argv[1];
 	pthread_create(&client, NULL, socketClient, NULL); //create thread for client using function socketClient
 	//pthread_create(&server, NULL, socketServer, NULL); //create thread for server using function socketServer
 	pthread_join(client, NULL);
