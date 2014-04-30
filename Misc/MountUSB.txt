@@ -25,3 +25,6 @@ sudo nano /etc/fstab
 	/dev/sdb1 /home/pi/flash vfat users,noauto,uid=pi,gid=users 0 0
 sudo umount flash
 	
+sudo mount -t vfat -o uid=pi,gid=users /dev/sda1 ./flash
+sudo cp -r flash/2014SeniorProject .
+sudo umount flash
