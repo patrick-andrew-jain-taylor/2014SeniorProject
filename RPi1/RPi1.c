@@ -10,9 +10,12 @@
 #include <sys/types.h>
 #include <pthread.h>
 #include "WiringPi/wiringPi/wiringPi.h"
+#include "libcsv/csv.h"
 
 pthread_t client; //thread for client
 pthread_t server; //thread for server
+uint16_t frameBuf[441600]; //160*120*23
+
 
 /* This code provides basic functionality to and from the MUX on board 1 from 
  * RPI1. The GPIO pins will read 6 RGB values per cycle, with 4 cycles of 
@@ -80,6 +83,33 @@ uint16_t displayData(uint8_t * GPIO){//converts from 24-bit RGB to 16-bit RGB
 	return (r << 11) | (g << 5) | b;
 }
 
+//CSV Code
+
+struct counts {
+	int fields;
+	int rows;
+	int frameCount;
+	uint16_t frame[160][120];
+};
+
+void cb1 (void *s, size_t len, void *data) {
+	((struct counts *)data)->frame
+		[((struct counts *)data)->fields%160][((struct counts *)data)->rows%120] = atoi(s);
+	printf("%u\t", 
+		((struct counts *)data)->frame
+			[((struct counts *)data)->fields%160][((struct counts *)data)->rows%120]);
+	((struct counts *)data)->fields++;
+	}
+void cb2 (int c, void *data) {
+	printf("\n");
+	((struct counts *)data)->rows++;
+	if (((struct counts *)data)->rows%120 == 0) printf("Frame %d\n", ((struct counts *)data)->frameCount++); 
+	}
+	
+
+
+//Networking Code
+
 int socketServer(void)
 {
   
@@ -134,7 +164,8 @@ void *socketClient(void *ptr)
   if(connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr))<0) //connect to socket
     {
       printf("\n Error : Connect Failed \n");
-    }  
+    } 
+	/*
 	while(1)
 	{
 		uint8_t RGB[24];
@@ -148,6 +179,21 @@ void *socketClient(void *ptr)
 				sendBuff[i*j+1] = socket[i][j] >> 8;
 			}
 		}
+	*/
+	
+	while(1)
+	{
+		uint16_t socket[160][120] 
+		int i = 0; int j = 0;
+		for(i = 0; i < 160; i++){
+			for(j = 0; j < 120; j++){
+				socket[i][j] = ((struct counts *)data)->frame[i][j];
+	//			printf("%x", socket[i][j]);
+				sendBuff[i*j] = socket[i][j] & 0xFF;
+				sendBuff[i*j+1] = socket[i][j] >> 8;
+			}
+		}
+	
 		write(sockfd, sendBuff, strlen(sendBuff)); //write to RPi3
 		//pthread_join(server, NULL); //read from RPi2
 		
@@ -156,9 +202,10 @@ void *socketClient(void *ptr)
 }
 
 
-int main(void)
+int main(int argc, char *argv[])
 {
 	RPi1Setup(); //set up RPi1 with wiringPi and correct pin modes
+	
 	pthread_create(&client, NULL, socketClient, NULL); //create thread for client using function socketClient
 	//pthread_create(&server, NULL, socketServer, NULL); //create thread for server using function socketServer
 	pthread_join(client, NULL);
