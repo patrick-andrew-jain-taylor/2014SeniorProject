@@ -1,14 +1,14 @@
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/types.h>
-#include <pthread.h>
-#include "WiringPi/wiringPi/wiringPi.h"
+#include <sys/socket.h> 
+#include <netinet/in.h> 
+#include <arpa/inet.h> 
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <unistd.h> 
+#include <errno.h> 
+#include <string.h> 
+#include <sys/types.h> 
+#include <pthread.h> 
+#include "WiringPi/wiringPi/wiringPi.h" 
 #include "WiringPi/wiringPi/wiringPiSPI.h"
 
 pthread_t client; //thread for client
@@ -38,6 +38,7 @@ int seps525_reg(int address, int data)
 	snprintf(buffer, sizeof(buffer), "%d", data);
 	wiringPiSPIDataRW(0, (unsigned char *)buffer, 8);
 	digitalWrite(CE0, HIGH);
+	delay(1);
 	return 0;
 }
 
@@ -94,20 +95,23 @@ int seps525_init(void)
 {
 	seps525_setup();
 	//from SEPS525 datasheet
-	digitalWrite(RESETB, LOW);
+	/*digitalWrite(RESETB, LOW);
 	delay(2); //VDDIO ON, VDDH ON
 	//RESETB => 'H'
 	digitalWrite(RESETB, HIGH);
 	delay(1);
-	seps525_reg(0x04, 0x01); //display off, analog reset
-	delay(1);
-	seps525_reg(0x04, 0x00); //normal mode
-	delay(1);
+	*/
+/*	while(1)
+	{
+	//seps525_reg(0x04, 0x01); //display off, analog reset
+  	//delay(1);
+	//seps525_reg(0x04, 0x00); //normal mode
+	//delay(1);
 	//following from SEPS525_OLED.cpp
-	seps525_reg(0x06, 0x00); //display off
-	seps525_reg(0x02, 0x01); //internal oscillator, external resistor
+	//seps525_reg(0x06, 0x00); //display off
+	//seps525_reg(0x02, 0x01); //internal oscillator, external resistor
 	seps525_reg(0x03, 0x30); // 90 hz frame rate, divider 0
-	seps525_reg(0x28, 0x7f); //duty cycle 127
+	//seps525_reg(0x28, 0x7f); //duty cycle 127
 	seps525_reg(0x29, 0x00); //start on line 0
 	seps525_reg(0x14, 0x31); //rgb interface
 	seps525_reg(0x16, 0x66); //memory write mode
@@ -129,7 +133,18 @@ int seps525_init(void)
 		seps525_data(0xffff);
 	}
 	seps525_dataend();
-	seps525_reg(0x06, 0x01);
+	//seps525_reg(0x06, 0x01);
+	}*/
+	while(1){
+//	seps525_reg(0x00,0x01);
+//	seps525_reg(0x02,0x03);
+	seps525_reg(0x04,0x05);
+	//seps525_reg(0x06,0x07);
+	//seps525_reg(0x08,0x09);
+	//seps525_reg(0x0a,0x0b);
+	//seps525_reg(0x0c,0x0d);
+	//seps525_reg(0x0e,0x0f);
+	}
 	return 0;
 }
 
@@ -167,6 +182,7 @@ void *socketServer(void *ptr) //receive from RPi1
 		int i = 0; int j = 0;
 		for(i = 0; i < 160; i++){
 			for(j = 0; j < 120; j++){
+				//if ((i == 10) && (j == 10)) printf("%x", recvBuff[i*j]);
 				char temp1[2]; temp1[0] = recvBuff[i*j];
 				char temp2[2]; temp2[0] = recvBuff[i*j+1];
 				seps525_datastart();
@@ -211,7 +227,11 @@ int socketClient(void) //send to RPi2
 
 int RPi3Setup(void) //need to work with Jake to finalize
 {
-	wiringPiSetup();
+	printf("Start\n");
+	//seps525_init();
+	seps525_init();
+	printf("Done\n");
+	//wiringPiSetup();
 	//set pin modes
 	/*pinModeWPi(7, INPUT); //GPIO 4  -- Output O1
 	pinModeWPi(0, INPUT); //GPIO 17 -- Output O2
@@ -227,9 +247,9 @@ int RPi3Setup(void) //need to work with Jake to finalize
 
 int main(void)
 {
-	seps525_init();
+	RPi3Setup();
 	//pthread_create(&client, NULL, socketClient, NULL);
-	pthread_create(&server, NULL, socketServer, NULL);
-	pthread_join(server, NULL);
+	//pthread_create(&server, NULL, socketServer, NULL);
+	//pthread_join(server, NULL);
 	return 0;
 }
